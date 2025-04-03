@@ -7,6 +7,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+|
+n
+no
+nod
+node
+node_
+node_m
+node_mo
+node_mod
+node_modu
+node_modul
+node_module
 node_modules
 .DS_Store
 dist
