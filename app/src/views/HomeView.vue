@@ -1,23 +1,38 @@
-<script setup>
-import TheWelcome from "../components/TheWelcome.vue"
-</script>
-
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <div class="slot-machine">
+    <div class="info"></div>
+
+    <div class="door">
+      <div class="boxes"></div>
+    </div>
+
+    <div class="door">
+      <div class="boxes"></div>
+    </div>
+
+    <div class="door">
+      <div class="boxes"></div>
+    </div>
+
+    <button id="spinner">Spin</button>
+    <button id="reseter">Reset</button>
+  </div>
 </template>
 
-<script>
-app.mount("#app")(function () {
-  "use strict"
+<script setup>
+import { onMounted } from "vue"
 
+onMounted(() => {
   const items = ["7️⃣", "❌", "🍓", "🍋", "🍉", "🍒", "💵", "🍊", "🍎"]
-  document.querySelector(".info").textContent = items.join(" ")
+  const info = document.querySelector(".info")
+  if (info) info.textContent = items.join(" ")
 
   const doors = document.querySelectorAll(".door")
-  document.querySelector("#spinner").addEventListener("click", spin)
-  document.querySelector("#reseter").addEventListener("click", init)
+  const spinner = document.querySelector("#spinner")
+  const reseter = document.querySelector("#reseter")
+
+  spinner?.addEventListener("click", spin)
+  reseter?.addEventListener("click", () => init())
 
   async function spin() {
     init(false, 1, 2)
@@ -28,6 +43,7 @@ app.mount("#app")(function () {
       await new Promise((resolve) => setTimeout(resolve, duration * 700))
     }
   }
+
   function init(firstInit = true, groups = 1, duration = 1) {
     for (const door of doors) {
       if (firstInit) {
@@ -54,6 +70,7 @@ app.mount("#app")(function () {
           },
           { once: true },
         )
+
         boxesClone.addEventListener(
           "transitionend",
           function () {
@@ -78,6 +95,7 @@ app.mount("#app")(function () {
       door.replaceChild(boxesClone, boxes)
     }
   }
+
   function shuffle([...arr]) {
     let m = arr.length
     while (m) {
@@ -86,6 +104,79 @@ app.mount("#app")(function () {
     }
     return arr
   }
+
   init()
-})()
+})
 </script>
+
+<style scoped>
+/* Reset and global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+}
+
+/* Slot Machine Styling */
+.slot-machine {
+  text-align: center;
+  padding: 20px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.door {
+  display: inline-block;
+  margin: 10px;
+  width: 100px;
+  height: 150px;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.boxes {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 100%;
+  transition: transform 1s ease;
+}
+
+.box {
+  font-size: 2rem;
+  text-align: center;
+  line-height: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Control Buttons */
+#spinner,
+#reseter {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#spinner:hover,
+#reseter:hover {
+  background-color: #45a049;
+}
+</style>
