@@ -1,17 +1,24 @@
 import { createRouter, createWebHistory } from "vue-router"
-import Login from "@/views/Login.vue"
 import HomeView from "@/views/HomeView.vue"
+import Login from "@/views/Login.vue"
 
 const routes = [
   {
     path: "/",
+    name: "home",
+    component: HomeView,
+  },
+  {
+    path: "/login",
     name: "login",
     component: Login,
   },
   {
-    path: "/home",
-    name: "home",
-    component: HomeView,
+    path: "/:pathMatch(.*)*",
+    name: "notfound",
+    component: {
+      template: "<h1>404 - Page Not Found</h1>",
+    },
   },
 ]
 

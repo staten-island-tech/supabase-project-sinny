@@ -1,21 +1,25 @@
 <template>
-  <div class="slot-machine">
-    <div class="info"></div>
+  <div>
+    <h1>Welcome to the Slot Machine</h1>
 
-    <div class="door">
-      <div class="boxes"></div>
+    <div class="slot-machine">
+      <div class="info"></div>
+
+      <div class="door">
+        <div class="boxes"></div>
+      </div>
+
+      <div class="door">
+        <div class="boxes"></div>
+      </div>
+
+      <div class="door">
+        <div class="boxes"></div>
+      </div>
+
+      <button id="spinner">Spin</button>
+      <button id="reseter">Reset</button>
     </div>
-
-    <div class="door">
-      <div class="boxes"></div>
-    </div>
-
-    <div class="door">
-      <div class="boxes"></div>
-    </div>
-
-    <button id="spinner">Spin</button>
-    <button id="reseter">Reset</button>
   </div>
 </template>
 
@@ -110,22 +114,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Reset and global styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: Arial, sans-serif;
-}
-
 /* Slot Machine Styling */
 .slot-machine {
   text-align: center;
@@ -163,9 +151,7 @@ body {
   justify-content: center;
 }
 
-/* Control Buttons */
-#spinner,
-#reseter {
+button {
   margin-top: 10px;
   padding: 10px 20px;
   background-color: #4caf50;
@@ -175,8 +161,7 @@ body {
   cursor: pointer;
 }
 
-#spinner:hover,
-#reseter:hover {
+button:hover {
   background-color: #45a049;
 }
 </style>
