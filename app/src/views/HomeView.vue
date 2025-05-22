@@ -20,11 +20,14 @@
       <button id="spinner">Spin</button>
       <button id="reseter">Reset</button>
     </div>
+
+    <div id="win-message" class="win-message">🎉 You Win! 🎉</div>
   </div>
 </template>
 
 <script setup>
 import { onMounted } from "vue"
+import gsap from "gsap"
 
 onMounted(() => {
   const items = ["7️⃣", "❌", "🍓", "🍋", "🍉", "🍒", "💵", "🍊", "🍎"]
@@ -46,6 +49,37 @@ onMounted(() => {
       boxes.style.transform = "translateY(0)"
       await new Promise((resolve) => setTimeout(resolve, duration * 700))
     }
+
+    const results = [...doors].map((door) => {
+      const boxes = door.querySelector(".boxes")
+      return boxes?.firstElementChild?.textContent
+    })
+
+    if (results.every((val) => val === results[0])) {
+      showWinAnimation()
+    }
+  }
+
+  function showWinAnimation() {
+    const winMessage = document.getElementById("win-message")
+    gsap.fromTo(
+      winMessage,
+      { opacity: 0, scale: 0.5, y: -100 },
+      {
+        opacity: 1,
+        scale: 1.2,
+        y: 0,
+        duration: 1,
+        ease: "bounce.out",
+        onComplete: () => {
+          gsap.to(winMessage, {
+            opacity: 0,
+            delay: 2,
+            duration: 1,
+          })
+        },
+      },
+    )
   }
 
   function init(firstInit = true, groups = 1, duration = 1) {
@@ -55,15 +89,18 @@ onMounted(() => {
       } else if (door.dataset.spinned === "1") {
         return
       }
+
       const boxes = door.querySelector(".boxes")
       const boxesClone = boxes.cloneNode(false)
       const pool = ["❓"]
+
       if (!firstInit) {
         const arr = []
         for (let n = 0; n < (groups > 0 ? groups : 1); n++) {
           arr.push(...items)
         }
         pool.push(...shuffle(arr))
+
         boxesClone.addEventListener(
           "transitionstart",
           function () {
@@ -86,6 +123,7 @@ onMounted(() => {
           { once: true },
         )
       }
+
       for (let i = pool.length - 1; i >= 0; i--) {
         const box = document.createElement("div")
         box.classList.add("box")
@@ -94,6 +132,7 @@ onMounted(() => {
         box.textContent = pool[i]
         boxesClone.appendChild(box)
       }
+
       boxesClone.style.transitionDuration = `${duration > 0 ? duration : 1}s`
       boxesClone.style.transform = `translateY(-${door.clientHeight * (pool.length - 1)}px)`
       door.replaceChild(boxesClone, boxes)
@@ -114,13 +153,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Slot Machine Styling */
 .slot-machine {
   text-align: center;
   padding: 20px;
   border: 2px solid #ccc;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .door {
@@ -163,5 +202,17 @@ button {
 
 button:hover {
   background-color: #45a049;
+}
+
+.win-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  color: gold;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
 }
 </style>
