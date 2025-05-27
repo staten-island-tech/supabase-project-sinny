@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { supabase } from "../supabase"
+import { supabase } from "../views/supabase.js"
 
 export default {
   data() {
