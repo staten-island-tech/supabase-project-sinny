@@ -165,8 +165,8 @@ onMounted(() => {
 .door {
   display: inline-block;
   margin: 10px;
-  width: 100px;
-  height: 150px;
+  width: 150px;
+  height: 200px;
   background-color: #f0f0f0;
   border-radius: 10px;
   overflow: hidden;
