@@ -165,29 +165,31 @@ onMounted(() => {
 .door {
   display: inline-block;
   margin: 10px;
-  width: 150px;
-  height: 200px;
+  width: 200px;
+  height: 150px;
   background-color: #f0f0f0;
   border-radius: 10px;
   overflow: hidden;
+  position: relative;
 }
 
 .boxes {
   display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
+  flex-direction: row; /* horizontal */
   height: 100%;
+  width: max-content; /* allow horizontal scroll width */
   transition: transform 1s ease;
 }
 
 .box {
+  width: 150px;
+  height: 100%;
   font-size: 2rem;
-  text-align: center;
-  line-height: 100px;
-  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  border-right: 1px solid #ccc;
 }
 
 button {

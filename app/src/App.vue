@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <nav>
-      <RouterLink to="/">Home</RouterLink>
+      <RouterLink to="/">Slot</RouterLink>
       <RouterLink to="/login">Login</RouterLink>
     </nav>
 
