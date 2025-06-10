@@ -1,18 +1,6 @@
 {
-  "name": "my-vue-app",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "serve": "vite preview"
-  },
   "dependencies": {
-    "vue": "^3.2.0",
     "@supabase/supabase-js": "^2.49.7",
     "gsap": "^3.13.0"
-  },
-  "devDependencies": {
-    "vite": "^4.0.0"
   }
 }
