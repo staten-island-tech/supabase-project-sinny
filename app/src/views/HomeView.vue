@@ -3,153 +3,106 @@
     <h1>Welcome to the Slot Machine</h1>
 
     <div class="slot-machine">
-      <div class="info"></div>
+      <div class="info">{{ items.join(" ") }}</div>
 
-      <div class="door">
-        <div class="boxes"></div>
+      <div class="door" v-for="(column, index) in doors" :key="index">
+        <div class="boxes" :style="{ transform: column.transform }">
+          <div v-for="(symbol, idx) in column.symbols" :key="idx" class="box">
+            {{ symbol }}
+          </div>
+        </div>
       </div>
 
-      <div class="door">
-        <div class="boxes"></div>
-      </div>
-
-      <div class="door">
-        <div class="boxes"></div>
-      </div>
-
-      <button id="spinner">Spin</button>
-      <button id="reseter">Reset</button>
+      <button @click="spin">Spin</button>
+      <button @click="reset">Reset</button>
     </div>
 
-    <div id="win-message" class="win-message">🎉 You Win! 🎉</div>
+    <div v-if="showWin" class="win-message">🎉 You Win! 🎉</div>
   </div>
 </template>
 
 <script setup>
-import { onMounted } from "vue"
+import { ref, computed } from "vue"
 import gsap from "gsap"
 
-onMounted(() => {
-  const items = ["7️⃣", "❌", "🍓", "🍋", "🍉", "🍒", "💵", "🍊", "🍎"]
-  const info = document.querySelector(".info")
-  if (info) info.textContent = items.join(" ")
+const items = ["7️⃣", "❌", "🍓", "🍋", "🍉", "🍒", "💵", "🍊", "🍎"]
 
-  const doors = document.querySelectorAll(".door")
-  const spinner = document.querySelector("#spinner")
-  const reseter = document.querySelector("#reseter")
+// State
+const doors = ref([
+  { symbols: ["❓"], transform: "translateY(0px)" },
+  { symbols: ["❓"], transform: "translateY(0px)" },
+  { symbols: ["❓"], transform: "translateY(0px)" },
+])
 
-  spinner?.addEventListener("click", spin)
-  reseter?.addEventListener("click", () => init())
+const showWin = ref(false)
 
-  async function spin() {
-    init(false, 1, 2)
-    for (const door of doors) {
-      const boxes = door.querySelector(".boxes")
-      const duration = parseInt(boxes.style.transitionDuration)
-      boxes.style.transform = "translateY(0)"
-      await new Promise((resolve) => setTimeout(resolve, duration * 700))
-    }
-
-    const results = [...doors].map((door) => {
-      const boxes = door.querySelector(".boxes")
-      return boxes?.firstElementChild?.textContent
-    })
-
-    if (results.every((val) => val === results[0])) {
-      showWinAnimation()
-    }
+function shuffle(array) {
+  const arr = [...array]
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
   }
+  return arr
+}
 
-  function showWinAnimation() {
-    const winMessage = document.getElementById("win-message")
-    gsap.fromTo(
-      winMessage,
-      { opacity: 0, scale: 0.5, y: -100 },
-      {
-        opacity: 1,
-        scale: 1.2,
-        y: 0,
-        duration: 1,
-        ease: "bounce.out",
-        onComplete: () => {
-          gsap.to(winMessage, {
-            opacity: 0,
-            delay: 2,
-            duration: 1,
-          })
-        },
+// Computed: check if all visible symbols are equal
+const currentResult = computed(() => doors.value.map((door) => door.symbols[0]))
+
+const isWin = computed(() => currentResult.value.every((val) => val === currentResult.value[0]))
+
+// Methods
+function spin() {
+  showWin.value = false
+
+  doors.value.forEach((door, index) => {
+    const shuffled = shuffle([...items, ...items])
+    door.symbols = shuffled
+    door.transform = `translateY(-${(shuffled.length - 1) * 150}px)`
+
+    // After spin ends, set first symbol as result
+    setTimeout(() => {
+      door.symbols = [shuffled[0]]
+      door.transform = "translateY(0px)"
+
+      // If it's the last door and it's a win, show animation
+      if (index === doors.value.length - 1 && isWin.value) {
+        triggerWinAnimation()
+      }
+    }, 1000)
+  })
+}
+
+function reset() {
+  doors.value.forEach((door) => {
+    door.symbols = ["❓"]
+    door.transform = "translateY(0px)"
+  })
+  showWin.value = false
+}
+
+function triggerWinAnimation() {
+  showWin.value = true
+  const winMessage = document.querySelector(".win-message")
+  gsap.fromTo(
+    winMessage,
+    { opacity: 0, scale: 0.5, y: -100 },
+    {
+      opacity: 1,
+      scale: 1.2,
+      y: 0,
+      duration: 1,
+      ease: "bounce.out",
+      onComplete: () => {
+        gsap.to(winMessage, {
+          opacity: 0,
+          delay: 2,
+          duration: 1,
+          onComplete: () => (showWin.value = false),
+        })
       },
-    )
-  }
-
-  function init(firstInit = true, groups = 1, duration = 1) {
-    for (const door of doors) {
-      if (firstInit) {
-        door.dataset.spinned = "0"
-      } else if (door.dataset.spinned === "1") {
-        return
-      }
-
-      const boxes = door.querySelector(".boxes")
-      const boxesClone = boxes.cloneNode(false)
-      const pool = ["❓"]
-
-      if (!firstInit) {
-        const arr = []
-        for (let n = 0; n < (groups > 0 ? groups : 1); n++) {
-          arr.push(...items)
-        }
-        pool.push(...shuffle(arr))
-
-        boxesClone.addEventListener(
-          "transitionstart",
-          function () {
-            door.dataset.spinned = "1"
-            this.querySelectorAll(".box").forEach((box) => {
-              box.style.filter = "blur(1px)"
-            })
-          },
-          { once: true },
-        )
-
-        boxesClone.addEventListener(
-          "transitionend",
-          function () {
-            this.querySelectorAll(".box").forEach((box, index) => {
-              box.style.filter = "blur(0)"
-              if (index > 0) this.removeChild(box)
-            })
-          },
-          { once: true },
-        )
-      }
-
-      for (let i = pool.length - 1; i >= 0; i--) {
-        const box = document.createElement("div")
-        box.classList.add("box")
-        box.style.width = door.clientWidth + "px"
-        box.style.height = door.clientHeight + "px"
-        box.textContent = pool[i]
-        boxesClone.appendChild(box)
-      }
-
-      boxesClone.style.transitionDuration = `${duration > 0 ? duration : 1}s`
-      boxesClone.style.transform = `translateY(-${door.clientHeight * (pool.length - 1)}px)`
-      door.replaceChild(boxesClone, boxes)
-    }
-  }
-
-  function shuffle([...arr]) {
-    let m = arr.length
-    while (m) {
-      const i = Math.floor(Math.random() * m--)
-      ;[arr[m], arr[i]] = [arr[i], arr[m]]
-    }
-    return arr
-  }
-
-  init()
-})
+    },
+  )
+}
 </script>
 
 <style scoped>
@@ -167,54 +120,36 @@ onMounted(() => {
   margin: 10px;
   width: 200px;
   height: 150px;
-  background-color: #f0f0f0;
-  border-radius: 10px;
   overflow: hidden;
-  position: relative;
+  background: #f4f4f4;
+  border-radius: 10px;
+  vertical-align: top;
 }
 
 .boxes {
-  display: flex;
-  flex-direction: row; /* horizontal */
-  height: 100%;
-  width: max-content; /* allow horizontal scroll width */
-  transition: transform 1s ease;
+  transition: transform 1s ease-out;
 }
 
 .box {
-  width: 150px;
-  height: 100%;
-  font-size: 2rem;
+  width: 200px;
+  height: 150px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  border-right: 1px solid #ccc;
+  font-size: 50px;
+  border-bottom: 1px solid #ccc;
 }
 
 button {
-  margin-top: 10px;
+  margin: 10px;
   padding: 10px 20px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
 }
 
-button:hover {
-  background-color: #45a049;
-}
-
 .win-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 3rem;
-  color: gold;
-  opacity: 0;
-  pointer-events: none;
-  z-index: 10;
+  font-size: 24px;
+  color: green;
+  margin-top: 20px;
 }
 </style>
